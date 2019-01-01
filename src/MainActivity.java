@@ -10,7 +10,9 @@ public class MainActivity {
 
         scanner = new Scanner(System.in);
 
+        System.out.print("Enter target number:");
         target = scanner.nextInt();
+        System.out.println("Enter number of operators:");
         op = scanner.nextInt();
 
         int popSize = 5;

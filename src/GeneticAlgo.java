@@ -62,11 +62,6 @@ public class GeneticAlgo {
                     best = s;
                 }
             }
-//	          try {
-//	          System.in.read();
-//	      } catch (IOException e) {
-//	          e.printStackTrace();
-//	      }
             ArrayList<String> q = new ArrayList<String>();
             for(int i=0; i < popSize/2; i++){
                 String pa = selectWithReplacement();
