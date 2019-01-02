@@ -1,88 +1,106 @@
-# coding: utf-8
-        __author__ = 'ZFTurbo: https://kaggle.com/zfturbo'
+import com.opencsv.CSVReader;
+
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static java.lang.Math.sqrt;
+
+class ScoringFunction{
+    String INPUT_PATH = "/media/ahsan/8fe5b69a-2108-4aca-9442-606f63604637/Projects/Travelling Santa - Kaggle/data/"; //input path here
+    ArrayList<Integer> plist;
+    static boolean alreadyExists = false;
+    double [] all_x;
+    double [] all_y;
+    protected ScoringFunction() throws IOException {
+        plist = get_primes();
+
+        FileReader fileReader = new FileReader(INPUT_PATH+"cities.csv");
+        CSVReader csvReader = new CSVReader(fileReader);
+        System.out.println("hello");
+
+        List cities = csvReader.readAll();
+
+        System.out.println(cities);
+//        all_ids = cities['CityId'].values
+//        all_x = cities['X'].values
+//        all_y = cities['Y'].values
+    }
+
+    public static ScoringFunction getScoringFunction(){
+        if(alreadyExists){
+            return null;
+        }
+        else{
+            alreadyExists = true;
+            try {
+                return new ScoringFunction();
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+    }
 
 
-import pandas as pd
-import numpy as np
-import math
-import os
-import pickle
-import gzip
-from operator import itemgetter
+
+    private boolean[] SieveOfEratosthenes(int n) {
+        // Create a boolean array "prime[0..n]" and initialize
+        // all entries it as true. A value in prime[i] will
+        // finally be false if i is Not a prime, else true.
+        boolean prime[] = new boolean[n + 1];
+        prime[0] = false;
+        prime[1] = false;
+        int p = 2;
+        while (p * p <= n) {
+            //If prime[ p]is not changed, then it is a prime
+            if (prime[p] == true) {
+                //Update all multiples of p
+                for (int i = p * 2; i <= n; i += p) {
+                    prime[i] = false;
+                }
+            }
+            p += 1;
+        }
+        return prime;
+    }
+
+    private ArrayList<Integer> get_primes() {
+        int n = 200000;
+        boolean [] prime = SieveOfEratosthenes(n);
+        ArrayList <Integer> plist = new ArrayList<Integer>();
+        for (int p=2; p < n; p++) {
+            if (prime[p]) {
+                plist.add(p);
+            }
+        }
+        return plist;
+    }
 
 
-INPUT_PATH = '../input/'
-        OUTPUT_PATH = './'
+    public double get_score(int[] s) {
+        double score = 0.0;
+        for (int i=0; i < s.length - 1; i++) {
+            double p1x = all_x[i];
+            double p1y = all_y[i];
+            double p2x = all_x[s[i + 1]];
+            double p2y = all_y[s[i+1]];
 
+            double stepSize = sqrt((p1x - p2x) * (p1x - p2x) + (p1y - p2y) * (p1x - p2y));
+            if ((i + 1) % 10 == 0 && (!plist.contains(s[i]))) {
+                stepSize *= 1.1;
+                score += stepSize;
+            }
+        }
+        return score;
+    }
 
-        def save_in_file_fast(arr, file_name):
-        pickle.dump(arr, open(file_name, 'wb'))
+    public static void main(String[] args){
+        System.out.println("hello");
+        ScoringFunction scoringFunction = ScoringFunction.getScoringFunction();
+        System.out.println("hello");
 
+    }
 
-        def load_from_file_fast(file_name):
-        return pickle.load(open(file_name, 'rb'))
-
-
-        def SieveOfEratosthenes(n):
-        # Create a boolean array "prime[0..n]" and initialize
-        #  all entries it as true. A value in prime[i] will
-        # finally be false if i is Not a prime, else true.
-        prime = [True for i in range(n + 1)]
-        prime[0] = False
-        prime[1] = False
-        p = 2
-        while (p * p <= n):
-
-        # If prime[p] is not changed, then it is a prime
-        if (prime[p] == True):
-
-        # Update all multiples of p
-        for i in range(p * 2, n + 1, p):
-        prime[i] = False
-        p += 1
-        return prime
-
-
-        def get_primes():
-        cache_path = OUTPUT_PATH + 'prime_list.pkl'
-        if not os.path.isfile(cache_path):
-        n = 200000
-        prime = SieveOfEratosthenes(n)
-        plist = []
-        for p in range(2, n):
-        if prime[p]:
-        plist.append(p)
-        save_in_file_fast(set(plist), cache_path)
-        else:
-        plist = load_from_file_fast(cache_path)
-
-        return plist
-
-
-        def get_score(subm_path):
-        plist = get_primes()
-        cities = pd.read_csv(INPUT_PATH + 'cities.csv')
-        all_ids = cities['CityId'].values
-        all_x = cities['X'].values
-        all_y = cities['Y'].values
-
-        arr = dict()
-        for i, id in enumerate(all_ids):
-        arr[id] = (all_x[i], all_y[i])
-
-        score = 0.0
-        s = pd.read_csv(subm_path)['Path'].values
-        for i in range(0, len(s)-1):
-        p1 = arr[s[i]]
-        p2 = arr[s[i+1]]
-        stepSize = math.sqrt((p1[0] - p2[0]) * (p1[0] - p2[0]) + (p1[1] - p2[1]) * (p1[1] - p2[1]))
-        if ((i + 1) % 10 == 0) and (s[i] not in plist):
-        stepSize *= 1.1
-        # print(stepSize)
-        score += stepSize
-        return score
-
-
-        if __name__ == '__main__':
-        score = get_score(INPUT_PATH + 'sample_submission.csv')
-        print('Score: {:.2f}'.format(score))
+}
