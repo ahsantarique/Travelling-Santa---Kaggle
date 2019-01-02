@@ -1,8 +1,10 @@
 import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
 
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static java.lang.Math.sqrt;
@@ -17,15 +19,21 @@ class ScoringFunction{
         plist = get_primes();
 
         FileReader fileReader = new FileReader(INPUT_PATH+"cities.csv");
-        CSVReader csvReader = new CSVReader(fileReader);
-        System.out.println("hello");
+        CSVReader csvReader = new CSVReaderBuilder(fileReader)
+                .withSkipLines(1)
+                .build();
 
-        List cities = csvReader.readAll();
+        List <String[]>cities = csvReader.readAll();
 
-        System.out.println(cities);
-//        all_ids = cities['CityId'].values
-//        all_x = cities['X'].values
-//        all_y = cities['Y'].values
+        all_x = new double[cities.size()];
+        all_y = new double[cities.size()];
+
+        for(int i=0; i < cities.size(); i+=1000){
+            all_x[i] = Double.parseDouble(cities.get(i)[1]);
+            all_y[i] = Double.parseDouble(cities.get(i)[2]);
+        }
+//        System.out.println(all_x[0]);
+//        System.out.println(all_y[0]);
     }
 
     public static ScoringFunction getScoringFunction(){
@@ -99,7 +107,9 @@ class ScoringFunction{
     public static void main(String[] args){
         System.out.println("hello");
         ScoringFunction scoringFunction = ScoringFunction.getScoringFunction();
-        System.out.println("hello");
+        int order[] = {0,1,2};
+        double s =scoringFunction.get_score(order);
+        System.out.println(s);
 
     }
 
